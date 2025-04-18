@@ -1,0 +1,50 @@
+@startuml LangGraph Agent
+
+class Main {
+    +main(host: str, port: int)
+}
+
+class AIVAAgent {
+    -model: ChatGoogleGenerativeAI
+    -tools: List[Tool]
+    -graph: ReactAgent
+    +invoke(query: str, sessionId: str): str
+    +stream(query: str, sessionId: str): AsyncIterable
+    -get_agent_response(config: dict): dict
+    +SUPPORTED_CONTENT_TYPES: List[str]
+}
+
+class AgentTaskManager {
+    -agent: AIVAAgent
+    -notification_sender_auth: PushNotificationSenderAuth
+    +on_send_task(request: SendTaskRequest): SendTaskResponse
+    +on_send_task_subscribe(request: SendTaskStreamingRequest): AsyncIterable
+    -process_agent_response(request: SendTaskRequest, response: dict): SendTaskResponse
+    -get_user_query(params: TaskSendParams): str
+} 
+
+class A2AServer {
+    -agent_card: AgentCard
+    -task_manager: AgentTaskManager
+    -host: str
+    -port: int
+    +start()
+}
+
+class AgentCard {
+
+}
+
+class AgentSkill {
+    -skill: str
+    -description: str
+    -tags: List[str]
+    -examples: List[str]
+}
+
+A2AServer --> AgentTaskManager : manages tasks
+A2AServer --> AgentCard : uses
+AgentCard --> AgentSkill : uses
+AgentTaskManager --> AIVAAgent : uses
+
+@enduml
